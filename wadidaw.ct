@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>255</ID>
+      <Description>"Enable"</Description>
+      <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+      <Color>0000FF</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+alloc(pVars,$100,$process)
+registersymbol(pVars)
+
+pVars:
+dd 16 // Archer
+pVars+4:
+dd 1 // Player 1
+
+
+aobscanmodule(aobSpawnUnit,StrongholdDE.dll,40 55 57 41 56 48 83 EC 20 8B EA 4C 8D 91 38 07 00 00 BA 01 00 00 00 4C 8B F1 8B FA 8B C2)
+registersymbol(aobSpawnUnit)
+
+aobscanmodule(aobInstance,StrongholdDE.dll,48 8D 0D ** ** ** ** C7 44 24 28 08 00 00 00 45 8B CF 44 8B C6)
+registersymbol(aobInstance)
+
+label(pInstance)
+registersymbol(pInstance)
+
+aobInstance+(DWORD)[aobInstance+3]+7:
+pInstance:
+
+aobscanmodule(aobMousePos,StrongholdDE.dll,48 8D 0D ** ** ** ** 44 8B 84 24 B0 00 00 00 8B D3)
+registersymbol(aobMousePos)
+
+label(pMousePos)
+registersymbol(pMousePos)
+
+aobMousePos+(DWORD)[aobMousePos+3]+7:
+pMousePos:
+
+
+[DISABLE]
+unregistersymbol(*)
+dealloc(pVars)
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>256</ID>
+          <Description>"Spawn Unit (F2)"</Description>
+          <Color>808000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>{$lua}
+if syntaxcheck then return end
+[ENABLE]
+local pSpawnUnit = getAddress("aobSpawnUnit")
+local Instance = getAddress("pInstance")
+
+local iPlayerID = readInteger(getAddress("pVars+4"))
+local iColor = iPlayerID
+local iPosX = getAddress("pMousePos+60")
+local iPosY = getAddress("pMousePos+64")
+iPosX = readInteger(iPosX) * 8
+iPosY = readInteger(iPosY) * 8
+local Unknown = 8
+local UnitID = readInteger(getAddress("pVars"))
+executeCodeEx(0,nil,pSpawnUnit,Instance,iPlayerID,iColor,iPosX,iPosY,Unknown,UnitID)
+
+error("ok")
+ 
+[DISABLE]
+
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Toggle Activation</Action>
+              <Keys>
+                <Key>113</Key>
+              </Keys>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>257</ID>
+              <Description>"Type:"</Description>
+              <DropDownList ReadOnly="1" DescriptionOnly="1" DisplayValueAsItem="1">00000016:Archer
+0000001E:Engineer
+00000018:Spearman
+00000019:Pikeman
+00000025:Monk
+0000001A:Maceman
+00000017:Crossbowman
+0000001C:Knight-Horse
+0000001B:Knight
+</DropDownList>
+              <ShowAsHex>1</ShowAsHex>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>4 Bytes</VariableType>
+              <Address>pVars</Address>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>258</ID>
+              <Description>"Player ID:"</Description>
+              <DropDownList ReadOnly="1" DescriptionOnly="1" DisplayValueAsItem="1">00000001:Player-1
+00000002:Player-2
+00000004:Player-3
+00000008:Player-4
+00000010:Player-5
+00000020:Player-6
+00000040:Player-7
+00000080:Player-8
+</DropDownList>
+              <ShowAsHex>1</ShowAsHex>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>4 Bytes</VariableType>
+              <Address>pVars+4</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>259</ID>
+          <Description>"Free Build"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript Async="1">{$lua}
+LaunchMonoDataCollector()
+if syntaxcheck then return end
+{$asm}
+
+[ENABLE]
+globalalloc(buildthr,$1000)
+createthread(buildthr)
+
+buildthr:
+sub rsp,48
+mov r11,mono-2.0-bdwgc.mono_get_root_domain
+call r11
+mov rcx,rax
+mov r11,mono-2.0-bdwgc.mono_thread_attach
+call r11
+mov rsi,rax
+mov ecx,414
+mov edx,1
+xor r8,r8
+call EngineInterface:GameAction
+mov rcx,rsi
+mov r11,mono-2.0-bdwgc.mono_thread_detach
+call r11
+add rsp,48
+ret
+
+ 
+[DISABLE]
+
+globalalloc(buildthr,$1000)
+createthread(buildthr)
+
+buildthr:
+sub rsp,48
+mov r11,mono-2.0-bdwgc.mono_get_root_domain
+call r11
+mov rcx,rax
+mov r11,mono-2.0-bdwgc.mono_thread_attach
+call r11
+mov rsi,rax
+mov ecx,414
+xor edx,edx
+xor r8,r8
+call EngineInterface:GameAction
+mov rcx,rsi
+mov r11,mono-2.0-bdwgc.mono_thread_detach
+call r11
+add rsp,48
+ret
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>260</ID>
+          <Description>"Open Event Menu"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript Async="1">{$lua}
+LaunchMonoDataCollector()
+if syntaxcheck then return end
+{$asm}
+
+[ENABLE]
+globalalloc(buildthr,$1000)
+createthread(buildthr)
+
+buildthr:
+sub rsp,48
+mov r11,mono-2.0-bdwgc.mono_get_root_domain
+call r11
+mov rcx,rax
+mov r11,mono-2.0-bdwgc.mono_thread_attach
+call r11
+mov rsi,rax
+call HUD_FreebuildMenu:ToggleMenu
+mov rcx,rsi
+mov r11,mono-2.0-bdwgc.mono_thread_detach
+call r11
+add rsp,48
+ret
+
+ 
+[DISABLE]
+
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>261</ID>
+          <Description>"Min. Food"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>{ Game   : Stronghold 1 Definitive Edition.exe
+  Version: 
+  Date   : 2023-11-09
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+aobscanmodule(aobReadStorages,StrongholdDE.dll,46 8B 84 21 50 01 00 00) // should be unique
+alloc(newmem,$1000,aobReadStorages)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  mov r8d,[rcx+r12+0000015C]
+  cmp r8d,#10
+  jg short @f
+   mov [rcx+r12+15C],#10
+  @@:
+  mov r8d,[rcx+r12+00000158]
+  cmp r8d,#10
+  jg short @f
+   mov [rcx+r12+158],#10
+  @@:
+  mov r8d,[rcx+r12+00000154]
+  cmp r8d,#10
+  jg short @f
+   mov [rcx+r12+154],#10
+  @@:
+  mov r8d,[rcx+r12+00000150]
+  cmp r8d,#10
+  jg short @f
+   mov [rcx+r12+150],#10
+  @@:
+  jmp return
+
+aobReadStorages:
+  jmp newmem
+  nop 3
+return:
+registersymbol(aobReadStorages)
+
+[DISABLE]
+
+aobReadStorages:
+  db 46 8B 84 21 50 01 00 00
+
+unregistersymbol(aobReadStorages)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: StrongholdDE.dll+6613A
+
+StrongholdDE.dll+66101: 4A 89 44 31 44              - mov [rcx+r14+44],rax
+StrongholdDE.dll+66106: 42 89 44 31 4C              - mov [rcx+r14+4C],eax
+StrongholdDE.dll+6610B: 4A 89 44 31 64              - mov [rcx+r14+64],rax
+StrongholdDE.dll+66110: 4A 89 44 31 6C              - mov [rcx+r14+6C],rax
+StrongholdDE.dll+66115: 4A 89 44 31 74              - mov [rcx+r14+74],rax
+StrongholdDE.dll+6611A: 4A 89 44 31 7C              - mov [rcx+r14+7C],rax
+StrongholdDE.dll+6611F: 4A 89 84 31 84 00 00 00     - mov [rcx+r14+00000084],rax
+StrongholdDE.dll+66127: 4A 89 84 31 8C 00 00 00     - mov [rcx+r14+0000008C],rax
+StrongholdDE.dll+6612F: 66 42 39 84 0A E0 94 05 00  - cmp [rdx+r9+000594E0],ax
+StrongholdDE.dll+66138: 75 11                       - jne StrongholdDE.dll+6614B
+// ---------- INJECTING HERE ----------
+StrongholdDE.dll+6613A: 46 8B 84 21 50 01 00 00     - mov r8d,[rcx+r12+00000150]
+// ---------- DONE INJECTING  ----------
+StrongholdDE.dll+66142: 45 85 C0                    - test r8d,r8d
+StrongholdDE.dll+66145: 41 0F 45 F0                 - cmovne esi,r8d
+StrongholdDE.dll+66149: EB 03                       - jmp StrongholdDE.dll+6614E
+StrongholdDE.dll+6614B: 44 8B C0                    - mov r8d,eax
+StrongholdDE.dll+6614E: 66 42 39 84 0A E2 94 05 00  - cmp [rdx+r9+000594E2],ax
+StrongholdDE.dll+66157: 75 10                       - jne StrongholdDE.dll+66169
+StrongholdDE.dll+66159: 46 8B AC 21 54 01 00 00     - mov r13d,[rcx+r12+00000154]
+StrongholdDE.dll+66161: 45 85 ED                    - test r13d,r13d
+StrongholdDE.dll+66164: 74 03                       - je StrongholdDE.dll+66169
+StrongholdDE.dll+66166: 41 03 F5                    - add esi,r13d
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>262</ID>
+          <Description>"Max Unit Health"</Description>
+          <Options moHideChildren="1"/>
+          <Color>FF8000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>{ Game   : Stronghold 1 Definitive Edition.exe
+  Version: 
+  Date   : 2023-11-08
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+aobscanmodule(aodReadAllUnitFaction,StrongholdDE.dll,41 0F B6 80 68 06 00 00) // should be unique
+alloc(newmem,$1000,aodReadAllUnitFaction)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  movzx eax,byte ptr [r8+00000668]
+  push rbx
+  mov rbx,pVars+4
+  mov ebx,[rbx]
+  cmp eax,ebx
+  pop rbx
+  jne return
+  mov eax,[r8+664]
+  mov [r8+660],eax
+  movzx eax,byte ptr [r8+00000668]
+  jmp return
+
+aodReadAllUnitFaction:
+  jmp newmem
+  nop 3
+return:
+registersymbol(aodReadAllUnitFaction)
+
+[DISABLE]
+
+aodReadAllUnitFaction:
+  db 41 0F B6 80 68 06 00 00
+
+unregistersymbol(aodReadAllUnitFaction)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: StrongholdDE.dll+1033E3
+
+StrongholdDE.dll+1033B0: 48 69 CA 14 04 00 00        - imul rcx,rdx,00000414
+StrongholdDE.dll+1033B7: 66 39 AC 19 28 03 00 00     - cmp [rcx+rbx+00000328],bp
+StrongholdDE.dll+1033BF: 74 0E                       - je StrongholdDE.dll+1033CF
+StrongholdDE.dll+1033C1: 48 8B CB                    - mov rcx,rbx
+StrongholdDE.dll+1033C4: E8 27 DE FF FF              - call StrongholdDE.dll+1011F0
+StrongholdDE.dll+1033C9: 8B 15 45 7A 45 00           - mov edx,[StrongholdDE.dll+55AE14]
+StrongholdDE.dll+1033CF: 48 63 C2                    - movsxd  rax,edx
+StrongholdDE.dll+1033D2: 4C 69 C0 14 04 00 00        - imul r8,rax,00000414
+StrongholdDE.dll+1033D9: 4C 03 C3                    - add r8,rbx
+StrongholdDE.dll+1033DC: 49 63 88 6C 03 00 00        - movsxd  rcx,dword ptr [r8+0000036C]
+// ---------- INJECTING HERE ----------
+StrongholdDE.dll+1033E3: 41 0F B6 80 68 06 00 00     - movzx eax,byte ptr [r8+00000668]
+// ---------- DONE INJECTING  ----------
+StrongholdDE.dll+1033EB: 42 08 84 31 60 E0 6A 02     - or [rcx+r14+026AE060],al
+StrongholdDE.dll+1033F3: 66 41 83 B8 26 03 00 00 16  - cmp word ptr [r8+00000326],16
+StrongholdDE.dll+1033FC: 75 45                       - jne StrongholdDE.dll+103443
+StrongholdDE.dll+1033FE: 41 0F B7 80 58 05 00 00     - movzx eax,word ptr [r8+00000558]
+StrongholdDE.dll+103406: 66 83 E8 05                 - sub ax,05
+StrongholdDE.dll+10340A: 66 41 3B C4                 - cmp ax,r12w
+StrongholdDE.dll+10340E: 77 33                       - ja StrongholdDE.dll+103443
+StrongholdDE.dll+103410: 49 0F BF 80 DC 05 00 00     - movsx rax,word ptr [r8+000005DC]
+StrongholdDE.dll+103418: 66 85 C0                    - test ax,ax
+StrongholdDE.dll+10341B: 7E 26                       - jle StrongholdDE.dll+103443
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>263</ID>
+              <Description>"Player ID:"</Description>
+              <DropDownList ReadOnly="1" DescriptionOnly="1" DisplayValueAsItem="1">00000001:Player-1
+00000002:Player-2
+00000004:Player-3
+00000008:Player-4
+00000010:Player-5
+00000020:Player-6
+00000040:Player-7
+00000080:Player-8
+</DropDownList>
+              <ShowAsHex>1</ShowAsHex>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>4 Bytes</VariableType>
+              <Address>pVars+4</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols>
+    <SymbolEntry>
+      <Name>buildthr</Name>
+      <Address>1CDEB1F0000</Address>
+    </SymbolEntry>
+  </UserdefinedSymbols>
+  <Structures StructVersion="2">
+    <Structure Name="unnamed structure" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" RLECompression="1" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="4 Bytes" Bytesize="4" RLECount="1024" OffsetHex="00000000" DisplayMethod="unsigned integer"/>
+      </Elements>
+    </Structure>
+    <Structure Name="unnamed structure" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" RLECompression="1" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="4 Bytes" Bytesize="4" RLECount="1024" OffsetHex="00000000" DisplayMethod="unsigned integer"/>
+      </Elements>
+    </Structure>
+  </Structures>
+</CheatTable>
